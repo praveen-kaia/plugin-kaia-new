@@ -17,5 +17,24 @@
   },
   "peerDependencies": {
     "whatwg-url": "7.1.0"
+  },
+  "pluginType": "elizaos:plugin:1.0.0",
+  "pluginParameters": {
+      "type": "object",
+      "required": ["evmPrivateKey", "evmProviderUrl"],
+      "properties": {
+          "evmPrivateKey": {
+              "type": "string",
+              "description": "EVM wallet private key"
+          },
+          "evmProviderUrl": {
+              "type": "string",
+              "description": "RPC provider URL (e.g., Infura, Alchemy, etc.)"
+          }
+      }
+  },
+  "pluginEnv": {
+      "EVM_PRIVATE_KEY": "evmPrivateKey",
+      "EVM_PROVIDER_URL": "evmProviderUrl"
   }
 }
