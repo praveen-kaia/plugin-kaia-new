@@ -52,13 +52,19 @@ function createAction(tool: Tool): Action {
         similes: [],
         description: tool.description,
         validate: async () => true,
-        handler: async (
-            runtime: IAgentRuntime,
-            message: Memory,
-            state: State | undefined,
-            options?: Record<string, unknown>,
-            callback?: HandlerCallback
-        ): Promise<boolean> => {
+        handler: async ({
+            runtime,
+            message,
+            state,
+            options,
+            callback,
+        }: {
+            runtime: IAgentRuntime;
+            message: Memory;
+            state: State;
+            options: any;
+            callback: HandlerCallback;
+        }): Promise<boolean> => {
             try {
                 let currentState =
                     state ?? (await runtime.composeState(message));
