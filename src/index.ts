@@ -1,4 +1,4 @@
-import type { Plugin } from "@elizaos/core";
+import type { Plugin, IAgentRuntime } from "@elizaos/core";
 import { getOnChainActions } from "./actions";
 import { erc20, USDC } from "@goat-sdk/plugin-erc20";
 import { sendETH } from "@goat-sdk/core";
@@ -25,4 +25,12 @@ async function createGoatPlugin(
     };
 }
 
-export default createGoatPlugin;
+export default async ({
+    runtime,
+}: {
+    runtime: IAgentRuntime;
+}) => {
+  return await createGoatPlugin(
+    (key: string) => runtime.getSetting(key),
+  )
+};
