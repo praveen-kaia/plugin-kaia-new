@@ -171,10 +171,10 @@ import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mode } from "viem/chains";
 var chain = mode;
-function getWalletClient(getSetting) {
-  const privateKey = getSetting("EVM_PRIVATE_KEY");
+function getWalletClient(env) {
+  const privateKey = env.EVM_PRIVATE_KEY;
   if (!privateKey) return null;
-  const provider = getSetting("EVM_PROVIDER_URL");
+  const provider = env.EVM_PROVIDER_URL;
   if (!provider) throw new Error("EVM_PROVIDER_URL not configured");
   const wallet = createWalletClient({
     account: privateKeyToAccount(privateKey),
@@ -200,8 +200,8 @@ Balance: ${balance} ETH`;
 }
 
 // src/index.ts
-async function createGoatPlugin(getSetting) {
-  const walletClient = getWalletClient(getSetting);
+async function createGoatPlugin(env) {
+  const walletClient = getWalletClient(env);
   const actions = await getOnChainActions(walletClient);
   return {
     name: "[GOAT] Onchain Actions",
