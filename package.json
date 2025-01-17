@@ -34,5 +34,16 @@
     },
     "peerDependencies": {
         "whatwg-url": "7.1.0"
+    },
+    "pluginType": "elizaos:client:1.0.0",
+    "pluginParameters": {
+        "EVM_PRIVATE_KEY": {
+            "type": "string",
+            "description": "EVM private key"
+        },
+        "EVM_PROVIDER_URL": {
+            "type": "string",
+            "description": "EVM provider URL"
+        }
     }
 }
