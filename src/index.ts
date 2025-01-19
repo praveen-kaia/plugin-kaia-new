@@ -1,11 +1,11 @@
-import type { Plugin } from "@elizaos/core";
+import type { IAgentRuntime, Plugin } from "@elizaos/core";
 import { getOnChainActions } from "./actions";
 import { getWalletClient, getWalletProvider } from "./wallet";
 
 async function createGoatPlugin(
-    env: any
+    runtime: IAgentRuntime,
 ): Promise<Plugin> {
-    const walletClient = getWalletClient(env);
+    const walletClient = getWalletClient(runtime);
     const actions = await getOnChainActions(walletClient);
 
     return {
