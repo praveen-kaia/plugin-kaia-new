@@ -17,7 +17,8 @@
         }
     },
     "files": [
-        "dist"
+        "dist",
+        "plugin.json"
     ],
     "dependencies": {
         "@goat-sdk/adapter-vercel-ai": "0.2.0",
