@@ -3,6 +3,7 @@ import { MODE, USDC, erc20 } from "@goat-sdk/plugin-erc20";
 import { kim } from "@goat-sdk/plugin-kim";
 import { sendETH } from "@goat-sdk/wallet-evm";
 import { WalletClientBase } from "@goat-sdk/core";
+import { getWalletClient } from "./wallet";
 
 import {
     generateText,
@@ -14,7 +15,7 @@ import {
     composeContext,
 } from "@elizaos/core";
 
-export async function getOnChainActions(wallet: WalletClientBase) {
+export function getOnChainActions() {
     const actionsWithoutHandler = [
         {
             name: "SWAP_TOKENS",
@@ -26,24 +27,20 @@ export async function getOnChainActions(wallet: WalletClientBase) {
         // 1. Add your actions here
     ];
 
-    const tools = await getOnChainTools({
-        wallet: wallet,
-        // 2. Configure the plugins you need to perform those actions
-        plugins: [sendETH(), erc20({ tokens: [USDC, MODE] }), kim()],
-    });
-
     // 3. Let GOAT handle all the actions
     return actionsWithoutHandler.map((action) => ({
         ...action,
-        handler: getActionHandler(action.name, action.description, tools),
+        handler: getActionHandler(action.name, action.description),
     }));
 }
 
 function getActionHandler(
     actionName: string,
     actionDescription: string,
-    tools
 ) {
+    let wallet: WalletClientBase | null = null;
+    let toolsPromise: Promise<any> | null = null;
+    
     return async (
         runtime: IAgentRuntime,
         message: Memory,
@@ -51,6 +48,18 @@ function getActionHandler(
         options?: Record<string, unknown>,
         callback?: HandlerCallback
     ): Promise<boolean> => {
+        if (!wallet) {
+            wallet = getWalletClient(runtime);
+        }
+        if (!toolsPromise) {
+            toolsPromise = getOnChainTools({
+                wallet,
+                // 2. Configure the plugins you need to perform those actions
+                plugins: [sendETH(), erc20({ tokens: [USDC, MODE] }), kim()],
+            });
+        }
+        const tools = await toolsPromise;
+
         let currentState = state ?? (await runtime.composeState(message));
         currentState = await runtime.updateRecentMessageState(currentState);
 

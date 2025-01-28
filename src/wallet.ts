@@ -27,9 +27,14 @@ export function getWalletClient(
     return viem(wallet);
 }
 
-export function getWalletProvider(walletClient: WalletClientBase) {
+export function getWalletProvider() {
+    let walletClient: WalletClientBase | null = null;
     return {
-        async get(): Promise<string | null> {
+        async get(runtime: IAgentRuntime): Promise<string | null> {
+            if (!walletClient) {
+                walletClient = getWalletClient(runtime);
+            }
+
             try {
                 const address = walletClient.getAddress();
                 const balance = await walletClient.balanceOf(address);
