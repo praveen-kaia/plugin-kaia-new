@@ -100,7 +100,7 @@ function getActionHandler(actionName, actionDescription) {
       });
       const response = composeResponseContext(result, currentState);
       const responseText = await generateResponse(runtime, response);
-      callback?.({
+      callback == null ? void 0 : callback({
         text: responseText,
         content: {}
       });
@@ -115,7 +115,7 @@ function getActionHandler(actionName, actionDescription) {
         runtime,
         errorResponse
       );
-      callback?.({
+      callback == null ? void 0 : callback({
         text: errorResponseText,
         content: { error: errorMessage }
       });
