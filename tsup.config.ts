@@ -5,6 +5,9 @@ export default defineConfig({
     outDir: "dist",
     sourcemap: true,
     clean: true,
+    dts: {
+        resolve: true,
+    },
     format: ["esm"], // Ensure you're targeting CommonJS
     external: [
         "dotenv", // Externalize dotenv to prevent bundling
