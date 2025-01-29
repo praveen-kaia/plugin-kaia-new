@@ -3,12 +3,52 @@ import { getOnChainTools } from "@goat-sdk/adapter-vercel-ai";
 import { MODE, USDC, erc20 } from "@goat-sdk/plugin-erc20";
 import { kim } from "@goat-sdk/plugin-kim";
 import { sendETH } from "@goat-sdk/wallet-evm";
+
+// src/wallet.ts
+import { viem } from "@goat-sdk/wallet-viem";
+import { createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { mode } from "viem/chains";
+var chain = mode;
+function getWalletClient(runtime) {
+  const privateKey = runtime.getSetting("EVM_PRIVATE_KEY");
+  if (!privateKey) return null;
+  const provider = runtime.getSetting("EVM_PROVIDER_URL");
+  if (!provider) throw new Error("EVM_PROVIDER_URL not configured");
+  const wallet = createWalletClient({
+    account: privateKeyToAccount(privateKey),
+    chain,
+    transport: http(provider)
+  });
+  return viem(wallet);
+}
+function getWalletProvider() {
+  let walletClient = null;
+  return {
+    async get(runtime) {
+      if (!walletClient) {
+        walletClient = getWalletClient(runtime);
+      }
+      try {
+        const address = walletClient.getAddress();
+        const balance = await walletClient.balanceOf(address);
+        return `EVM Wallet Address: ${address}
+Balance: ${balance} ETH`;
+      } catch (error) {
+        console.error("Error in EVM wallet provider:", error);
+        return null;
+      }
+    }
+  };
+}
+
+// src/actions.ts
 import {
   generateText,
   ModelClass,
   composeContext
 } from "@elizaos/core";
-async function getOnChainActions(wallet) {
+function getOnChainActions() {
   const actionsWithoutHandler = [
     {
       name: "SWAP_TOKENS",
@@ -19,18 +59,26 @@ async function getOnChainActions(wallet) {
     }
     // 1. Add your actions here
   ];
-  const tools = await getOnChainTools({
-    wallet,
-    // 2. Configure the plugins you need to perform those actions
-    plugins: [sendETH(), erc20({ tokens: [USDC, MODE] }), kim()]
-  });
   return actionsWithoutHandler.map((action) => ({
     ...action,
-    handler: getActionHandler(action.name, action.description, tools)
+    handler: getActionHandler(action.name, action.description)
   }));
 }
-function getActionHandler(actionName, actionDescription, tools) {
+function getActionHandler(actionName, actionDescription) {
+  let wallet = null;
+  let toolsPromise = null;
   return async (runtime, message, state, options, callback) => {
+    if (!wallet) {
+      wallet = getWalletClient(runtime);
+    }
+    if (!toolsPromise) {
+      toolsPromise = getOnChainTools({
+        wallet,
+        // 2. Configure the plugins you need to perform those actions
+        plugins: [sendETH(), erc20({ tokens: [USDC, MODE] }), kim()]
+      });
+    }
+    const tools = await toolsPromise;
     let currentState = state ?? await runtime.composeState(message);
     currentState = await runtime.updateRecentMessageState(currentState);
     try {
@@ -165,54 +213,16 @@ async function generateResponse(runtime, context) {
   });
 }
 
-// src/wallet.ts
-import { viem } from "@goat-sdk/wallet-viem";
-import { createWalletClient, http } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { mode } from "viem/chains";
-var chain = mode;
-function getWalletClient(runtime) {
-  const privateKey = runtime.getSetting("EVM_PRIVATE_KEY");
-  if (!privateKey) return null;
-  const provider = runtime.getSetting("EVM_PROVIDER_URL");
-  if (!provider) throw new Error("EVM_PROVIDER_URL not configured");
-  const wallet = createWalletClient({
-    account: privateKeyToAccount(privateKey),
-    chain,
-    transport: http(provider)
-  });
-  return viem(wallet);
-}
-function getWalletProvider(walletClient) {
-  return {
-    async get() {
-      try {
-        const address = walletClient.getAddress();
-        const balance = await walletClient.balanceOf(address);
-        return `EVM Wallet Address: ${address}
-Balance: ${balance} ETH`;
-      } catch (error) {
-        console.error("Error in EVM wallet provider:", error);
-        return null;
-      }
-    }
-  };
-}
-
 // src/index.ts
-async function createGoatPlugin(runtime) {
-  const walletClient = getWalletClient(runtime);
-  const actions = await getOnChainActions(walletClient);
-  return {
-    name: "[GOAT] Onchain Actions",
-    description: "Mode integration plugin",
-    providers: [getWalletProvider(walletClient)],
-    evaluators: [],
-    services: [],
-    actions
-  };
-}
-var index_default = createGoatPlugin;
+var goatPlugin = {
+  name: "[GOAT] Onchain Actions",
+  description: "Mode integration plugin",
+  providers: [getWalletProvider()],
+  evaluators: [],
+  services: [],
+  actions: getOnChainActions()
+};
+var index_default = goatPlugin;
 export {
   index_default as default
 };

@@ -1,5 +1,5 @@
-import { IAgentRuntime, Plugin } from '@elizaos/core';
+import { Plugin } from '@elizaos/core';
 
-declare function createGoatPlugin(runtime: IAgentRuntime): Promise<Plugin>;
+declare const goatPlugin: Plugin;
 
-export { createGoatPlugin as default };
+export { goatPlugin as default };
