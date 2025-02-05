@@ -1,5 +1,4 @@
-import { IAgentRuntime } from "@elizaos/core";
-import { WalletClientBase } from "@goat-sdk/core";
+import type { WalletClientBase } from "@goat-sdk/core";
 import { viem } from "@goat-sdk/wallet-viem";
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -10,12 +9,12 @@ import { mode } from "viem/chains";
 export const chain = mode;
 
 export function getWalletClient(
-    runtime: IAgentRuntime
+    getSetting: (key: string) => string | undefined
 ) {
-    const privateKey = runtime.getSetting('EVM_PRIVATE_KEY');
+    const privateKey = getSetting("EVM_PRIVATE_KEY");
     if (!privateKey) return null;
 
-    const provider = runtime.getSetting('EVM_PROVIDER_URL');
+    const provider = getSetting("EVM_PROVIDER_URL");
     if (!provider) throw new Error("EVM_PROVIDER_URL not configured");
 
     const wallet = createWalletClient({
@@ -27,14 +26,9 @@ export function getWalletClient(
     return viem(wallet);
 }
 
-export function getWalletProvider() {
-    let walletClient: WalletClientBase | null = null;
+export function getWalletProvider(walletClient: WalletClientBase) {
     return {
-        async get(runtime: IAgentRuntime): Promise<string | null> {
-            if (!walletClient) {
-                walletClient = getWalletClient(runtime);
-            }
-
+        async get(): Promise<string | null> {
             try {
                 const address = walletClient.getAddress();
                 const balance = await walletClient.balanceOf(address);

@@ -1,12 +1,21 @@
+import type { Plugin } from "@elizaos/core";
 import { getOnChainActions } from "./actions";
-import { getWalletProvider } from "./wallet";
+import { getWalletClient, getWalletProvider } from "./wallet";
 
-const goatPlugin = {
-    name: "[GOAT] Onchain Actions",
-    description: "Mode integration plugin",
-    providers: [getWalletProvider()],
-    evaluators: [],
-    services: [],
-    actions: getOnChainActions(),
-};
-export default goatPlugin;
+async function createGoatPlugin(
+    getSetting: (key: string) => string | undefined
+): Promise<Plugin> {
+    const walletClient = getWalletClient(getSetting);
+    const actions = await getOnChainActions(walletClient);
+
+    return {
+        name: "[GOAT] Onchain Actions",
+        description: "Mode integration plugin",
+        providers: [getWalletProvider(walletClient)],
+        evaluators: [],
+        services: [],
+        actions: actions,
+    };
+}
+
+export default createGoatPlugin;
