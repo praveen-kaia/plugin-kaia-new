@@ -1,5 +1,5 @@
 import { Plugin } from '@elizaos/core';
 
-declare function createGoatPlugin(getSetting: (key: string) => string | undefined): Promise<Plugin>;
+declare function createKaiaPlugin(getSetting: (key: string) => string | undefined): Promise<Plugin>;
 
-export { createGoatPlugin as default };
+export { createKaiaPlugin as default };

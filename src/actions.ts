@@ -1,7 +1,5 @@
 import { getOnChainTools } from "@goat-sdk/adapter-vercel-ai";
-import { MODE, USDC, erc20 } from "@goat-sdk/plugin-erc20";
-import { kim } from "@goat-sdk/plugin-kim";
-import { sendETH } from "@goat-sdk/wallet-evm";
+import { Kaia } from "@kaiachain/kaia-agent-kit";
 import type { WalletClientBase } from "@goat-sdk/core";
 
 import {
@@ -14,11 +12,11 @@ import {
     composeContext,
 } from "@elizaos/core";
 
-export async function getOnChainActions(wallet: WalletClientBase) {
+export async function getOnChainActions(wallet: WalletClientBase, getSetting: (key: string) => string | undefined) {
     const actionsWithoutHandler = [
         {
-            name: "SWAP_TOKENS",
-            description: "Swap two different tokens using KIM protocol",
+            name: "get_current_balance",
+            description: "Get the current balance for a given address and network (kaia or kairos)",
             similes: [],
             validate: async () => true,
             examples: [],
@@ -29,7 +27,7 @@ export async function getOnChainActions(wallet: WalletClientBase) {
     const tools = await getOnChainTools({
         wallet: wallet,
         // 2. Configure the plugins you need to perform those actions
-        plugins: [sendETH(), erc20({ tokens: [USDC, MODE] }), kim()],
+        plugins: [Kaia({ KAIA_KAIASCAN_API_KEY: getSetting("KAIA_KAIASCAN_API_KEY") })],
     });
 
     // 3. Let GOAT handle all the actions

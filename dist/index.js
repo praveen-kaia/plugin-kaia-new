@@ -1,18 +1,16 @@
 // src/actions.ts
 import { getOnChainTools } from "@goat-sdk/adapter-vercel-ai";
-import { MODE, USDC, erc20 } from "@goat-sdk/plugin-erc20";
-import { kim } from "@goat-sdk/plugin-kim";
-import { sendETH } from "@goat-sdk/wallet-evm";
+import { Kaia } from "@kaiachain/kaia-agent-kit";
 import {
   generateText,
   ModelClass,
   composeContext
 } from "@elizaos/core";
-async function getOnChainActions(wallet) {
+async function getOnChainActions(wallet, getSetting) {
   const actionsWithoutHandler = [
     {
-      name: "SWAP_TOKENS",
-      description: "Swap two different tokens using KIM protocol",
+      name: "get_current_balance",
+      description: "Get the current balance for a given address and network (kaia or kairos)",
       similes: [],
       validate: async () => true,
       examples: []
@@ -22,7 +20,7 @@ async function getOnChainActions(wallet) {
   const tools = await getOnChainTools({
     wallet,
     // 2. Configure the plugins you need to perform those actions
-    plugins: [sendETH(), erc20({ tokens: [USDC, MODE] }), kim()]
+    plugins: [Kaia({ KAIA_KAIASCAN_API_KEY: getSetting("KAIA_KAIASCAN_API_KEY") })]
   });
   return actionsWithoutHandler.map((action) => ({
     ...action,
@@ -200,9 +198,9 @@ Balance: ${balance} ETH`;
 }
 
 // src/index.ts
-async function createGoatPlugin(getSetting) {
+async function createKaiaPlugin(getSetting) {
   const walletClient = getWalletClient(getSetting);
-  const actions = await getOnChainActions(walletClient);
+  const actions = await getOnChainActions(walletClient, getSetting);
   return {
     name: "[GOAT] Onchain Actions",
     description: "Mode integration plugin",
@@ -212,7 +210,7 @@ async function createGoatPlugin(getSetting) {
     actions
   };
 }
-var index_default = createGoatPlugin;
+var index_default = createKaiaPlugin;
 export {
   index_default as default
 };

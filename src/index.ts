@@ -2,11 +2,11 @@ import type { Plugin } from "@elizaos/core";
 import { getOnChainActions } from "./actions";
 import { getWalletClient, getWalletProvider } from "./wallet";
 
-async function createGoatPlugin(
+async function createKaiaPlugin(
     getSetting: (key: string) => string | undefined
 ): Promise<Plugin> {
     const walletClient = getWalletClient(getSetting);
-    const actions = await getOnChainActions(walletClient);
+    const actions = await getOnChainActions(walletClient, getSetting);
 
     return {
         name: "[GOAT] Onchain Actions",
@@ -18,4 +18,4 @@ async function createGoatPlugin(
     };
 }
 
-export default createGoatPlugin;
+export default createKaiaPlugin;
