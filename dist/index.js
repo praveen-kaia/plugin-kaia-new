@@ -168,8 +168,8 @@ async function generateResponse(runtime, context) {
 import { viem } from "@goat-sdk/wallet-viem";
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { mode } from "viem/chains";
-var chain = mode;
+import { kairos } from "viem/chains";
+var chain = kairos;
 function getWalletClient(config) {
   const privateKey = config.EVM_PRIVATE_KEY;
   if (!privateKey) return null;
