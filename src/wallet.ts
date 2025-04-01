@@ -9,12 +9,12 @@ import { mode } from "viem/chains";
 export const chain = mode;
 
 export function getWalletClient(
-    getSetting: (key: string) => string | undefined
+    config: any
 ) {
-    const privateKey = getSetting("EVM_PRIVATE_KEY");
+    const privateKey = config.EVM_PRIVATE_KEY;
     if (!privateKey) return null;
 
-    const provider = getSetting("EVM_PROVIDER_URL");
+    const provider = config.EVM_PROVIDER_URL;
     if (!provider) throw new Error("EVM_PROVIDER_URL not configured");
 
     const wallet = createWalletClient({

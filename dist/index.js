@@ -6,7 +6,8 @@ import {
   ModelClass,
   composeContext
 } from "@elizaos/core";
-async function getOnChainActions(wallet, getSetting) {
+async function getOnChainActions(wallet, config) {
+  console.log("########## getOnChainActions called");
   const actionsWithoutHandler = [
     {
       name: "get_current_balance",
@@ -20,7 +21,7 @@ async function getOnChainActions(wallet, getSetting) {
   const tools = await getOnChainTools({
     wallet,
     // 2. Configure the plugins you need to perform those actions
-    plugins: [Kaia({ KAIA_KAIASCAN_API_KEY: getSetting("KAIA_KAIASCAN_API_KEY") })]
+    plugins: [Kaia({ KAIA_KAIASCAN_API_KEY: config.KAIA_KAIASCAN_API_KEY })]
   });
   return actionsWithoutHandler.map((action) => ({
     ...action,
@@ -169,10 +170,10 @@ import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mode } from "viem/chains";
 var chain = mode;
-function getWalletClient(getSetting) {
-  const privateKey = getSetting("EVM_PRIVATE_KEY");
+function getWalletClient(config) {
+  const privateKey = config.EVM_PRIVATE_KEY;
   if (!privateKey) return null;
-  const provider = getSetting("EVM_PROVIDER_URL");
+  const provider = config.EVM_PROVIDER_URL;
   if (!provider) throw new Error("EVM_PROVIDER_URL not configured");
   const wallet = createWalletClient({
     account: privateKeyToAccount(privateKey),
@@ -198,9 +199,9 @@ Balance: ${balance} ETH`;
 }
 
 // src/index.ts
-async function createKaiaPlugin(getSetting) {
-  const walletClient = getWalletClient(getSetting);
-  const actions = await getOnChainActions(walletClient, getSetting);
+async function createKaiaPlugin(config) {
+  const walletClient = getWalletClient(config);
+  const actions = await getOnChainActions(walletClient, config);
   return {
     name: "[GOAT] Onchain Actions",
     description: "Mode integration plugin",

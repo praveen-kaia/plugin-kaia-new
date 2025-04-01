@@ -3,10 +3,10 @@ import { getOnChainActions } from "./actions";
 import { getWalletClient, getWalletProvider } from "./wallet";
 
 async function createKaiaPlugin(
-    getSetting: (key: string) => string | undefined
+    config: any
 ): Promise<Plugin> {
-    const walletClient = getWalletClient(getSetting);
-    const actions = await getOnChainActions(walletClient, getSetting);
+    const walletClient = getWalletClient(config);
+    const actions = await getOnChainActions(walletClient, config);
 
     return {
         name: "[GOAT] Onchain Actions",

@@ -12,7 +12,7 @@ import {
     composeContext,
 } from "@elizaos/core";
 
-export async function getOnChainActions(wallet: WalletClientBase, getSetting: (key: string) => string | undefined) {
+export async function getOnChainActions(wallet: WalletClientBase, config: any) {
     console.log("########## getOnChainActions called");
     const actionsWithoutHandler = [
         {
@@ -28,7 +28,7 @@ export async function getOnChainActions(wallet: WalletClientBase, getSetting: (k
     const tools = await getOnChainTools({
         wallet: wallet,
         // 2. Configure the plugins you need to perform those actions
-        plugins: [Kaia({ KAIA_KAIASCAN_API_KEY: getSetting("KAIA_KAIASCAN_API_KEY") })],
+        plugins: [Kaia({ KAIA_KAIASCAN_API_KEY: config.KAIA_KAIASCAN_API_KEY })],
     });
 
     // 3. Let GOAT handle all the actions
