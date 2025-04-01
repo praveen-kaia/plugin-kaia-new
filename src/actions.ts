@@ -13,6 +13,7 @@ import {
 } from "@elizaos/core";
 
 export async function getOnChainActions(wallet: WalletClientBase, getSetting: (key: string) => string | undefined) {
+    console.log("########## getOnChainActions called");
     const actionsWithoutHandler = [
         {
             name: "get_current_balance",
