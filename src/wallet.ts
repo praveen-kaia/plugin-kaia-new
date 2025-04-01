@@ -11,8 +11,10 @@ export const chain = kairos;
 export function getWalletClient(
     config: any
 ) {
-    const privateKey = config.EVM_PRIVATE_KEY;
+    const privateKey = config.KAIA_EVM_PRIVATE_KEY;
+   
     if (!privateKey) return null;
+    console.log("%%%%%% Loaded private key %%%%%%%%%");
 
     const provider = config.EVM_PROVIDER_URL;
     if (!provider) throw new Error("EVM_PROVIDER_URL not configured");
